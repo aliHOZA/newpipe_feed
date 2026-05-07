@@ -9,10 +9,9 @@ import time
 # Initialize combined feed with your correct repository URL
 fg = FeedGenerator()
 fg.title('My Combined YouTube Subscriptions')
-# ✅ CHANGE THIS: Update the URL to use your GitHub raw URL
 fg.link(href='https://raw.githubusercontent.com/aliHOZA/newpipe_feed/main/combined.xml', rel='self')
+fg.atomlink(href='https://raw.githubusercontent.com/aliHOZA/newpipe_feed/main/combined.xml', rel='self')
 fg.description('Latest videos from all channels I follow on YouTube')
-fg.language('en')
 
 entries = []
 
