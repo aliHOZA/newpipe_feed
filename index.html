@@ -16,6 +16,16 @@
         .channel { font-weight: bold; color: #cc181e; }
         hr { margin: 1rem 0; }
         footer { margin-top: 2rem; font-size: 0.8rem; text-align: center; color: #888; }
+        
+        /* === RTL bidirectional support === */
+        .video h3 a, .description, .meta {
+            unicode-bidi: plaintext;   /* Auto-detect RTL segments */
+            direction: auto;           /* Follow Unicode direction */
+        }
+        /* Make sure the whole container does not force LTR */
+        .video {
+            direction: ltr;            /* container remains LTR, text inside flows according to content */
+        }
     </style>
 </head>
 <body>
@@ -44,7 +54,6 @@
                     const pubDate = item.querySelector('pubDate')?.textContent || '';
                     const description = item.querySelector('description')?.textContent || '';
                     const author = item.querySelector('author')?.textContent || 'Unknown channel';
-                    // Format date
                     const dateObj = new Date(pubDate);
                     const formattedDate = isNaN(dateObj) ? pubDate : dateObj.toLocaleString();
                     html += `
