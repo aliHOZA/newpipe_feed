@@ -7,10 +7,8 @@ on:
 
 jobs:
   build:
-    # Grant write permission for the repository's contents
     permissions:
-      contents: write
-
+      contents: write        # Required to push the feed file
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
