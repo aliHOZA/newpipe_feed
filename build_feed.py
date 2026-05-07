@@ -1,41 +1,28 @@
 #!/usr/bin/env python3
-import json
+# IMPORT channels from the separate file you created
+from channels import CHANNELS
 import feedparser
 from feedgen.feed import FeedGenerator
 from datetime import datetime, timezone
-import requests
 import time
 
-# Load subscriptions
-with open('newpipe_subscriptions_202605080040.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
-
-# Prepare combined feed
+# Initialize combined feed with your correct repository URL
 fg = FeedGenerator()
 fg.title('My Combined YouTube Subscriptions')
-fg.link(href='https://your-github-username.github.io/repo-name/combined.xml', rel='self')
+# ✅ CHANGE THIS: Update the URL to use your GitHub raw URL
+fg.link(href='https://raw.githubusercontent.com/aliHOZA/newpipe_feed/main/combined.xml', rel='self')
 fg.description('Latest videos from all channels I follow on YouTube')
 fg.language('en')
 
 entries = []
 
-for sub in data['subscriptions']:
-    channel_url = sub['url']
-    # Extract channel ID from URL (supports /channel/ and /c/ formats)
-    if '/channel/' in channel_url:
-        channel_id = channel_url.split('/channel/')[-1].split('/')[0].split('?')[0]
-    elif '/c/' in channel_url:
-        # For custom URLs you may need an extra API call; but NewPipe usually gives /channel/
-        continue
-    else:
-        continue
-
+# Loop through each channel from channels.py
+for name, channel_id in CHANNELS:
     rss_url = f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}'
-    print(f'Fetching {sub["name"]} ...')
+    print(f'Fetching {name} ...')
     try:
         feed = feedparser.parse(rss_url)
         for entry in feed.entries:
-            # Convert published time to datetime object
             published = entry.get('published_parsed')
             if published:
                 dt = datetime.fromtimestamp(time.mktime(published), tz=timezone.utc)
@@ -45,18 +32,18 @@ for sub in data['subscriptions']:
                 'title': entry.title,
                 'link': entry.link,
                 'published': dt,
-                'summary': f'From {sub["name"]}: {entry.get("description", "")}',
-                'author': sub['name']
+                'summary': f'From {name}: {entry.get("description", "")}',
+                'author': name
             })
-        time.sleep(0.5)  # be polite to YouTube
+        time.sleep(0.5)  # Respect YouTube's servers
     except Exception as e:
-        print(f'Error with {sub["name"]}: {e}')
+        print(f'Error with {name}: {e}')
 
-# Sort by newest first
+# Sort entries, latest first
 entries.sort(key=lambda x: x['published'], reverse=True)
 
-# Add to RSS feed
-for e in entries[:100]:  # limit to 100 latest videos to keep feed size reasonable
+# Add the top 100 videos to the feed
+for e in entries[:100]:
     fe = fg.add_entry()
     fe.title(e['title'])
     fe.link(href=e['link'])
@@ -64,5 +51,6 @@ for e in entries[:100]:  # limit to 100 latest videos to keep feed size reasonab
     fe.description(e['summary'])
     fe.author(name=e['author'])
 
+# Save the combined feed as combined.xml
 fg.rss_file('combined.xml')
-print(f'Generated combined.xml with {len(entries[:100])} videos.')
+print(f'✅ Generated combined.xml with {len(entries[:100])} videos.')
