@@ -2,26 +2,26 @@ name: Update Combined RSS Feed
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # every 6 hours – adjust as you like
-  workflow_dispatch:         # allow manual trigger
+    - cron: '0 */6 * * *'   # Runs every 6 hours
+  workflow_dispatch:         # Allows manual trigger from GitHub UI
 
 jobs:
   build:
+    # Grant write permission for the repository's contents
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
       - name: Run feed builder
         run: python build_feed.py
-
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
